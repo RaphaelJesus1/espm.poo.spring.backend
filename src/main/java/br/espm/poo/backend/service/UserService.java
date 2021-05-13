@@ -1,6 +1,7 @@
 package br.espm.poo.backend.service;
 
 import br.espm.poo.backend.datatype.UserBean;
+import org.apache.catalina.User;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
@@ -22,16 +23,16 @@ public class UserService {
         users.put(u4.getId(), u4);
     }
 
-    public List<UserBean> listAll() {
-        return new ArrayList<>();
+    public Map<UUID, UserBean> listAll() {
+        return users;
     }
 
     public UserBean findBy(UUID id) {
-        /*for(UserBean user:users) {
-            if(id.equals(user.getId())){
-                return user;
+        for(Map.Entry<UUID, UserBean> key : users.entrySet()){
+            if(id.equals(key.getValue().getId())){
+                return key.getValue();
             }
-        } */
+        }
         return null;
     }
 

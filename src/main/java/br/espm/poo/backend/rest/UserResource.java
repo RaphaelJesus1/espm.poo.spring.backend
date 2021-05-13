@@ -5,7 +5,7 @@ import br.espm.poo.backend.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @RestController
@@ -15,7 +15,7 @@ public class UserResource {
     private UserService userService;
 
     @GetMapping(path = "/users")
-    public List<UserBean> listAll(){
+    public Map<UUID, UserBean> listAll(){
         return userService.listAll();
     }
 
