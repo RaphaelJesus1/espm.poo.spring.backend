@@ -1,11 +1,15 @@
 package br.espm.poo.backend.rest;
 
+import br.espm.poo.backend.exception.RecordNotFoundException;
 import br.espm.poo.backend.datatype.UserBean;
 import br.espm.poo.backend.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import java.util.Map;
+import java.net.URI;
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -15,23 +19,34 @@ public class UserResource {
     private UserService userService;
 
     @GetMapping(path = "/users")
-    public Map<UUID, UserBean> listAll(){
+    public List<UserBean> listAll(){
         return userService.listAll();
     }
 
     @GetMapping(path = "/users/{id}")
     public UserBean findBy(@PathVariable UUID id) {
-        return userService.findBy(id);
+        UserBean foundUser = userService.findBy(id);
+        if(foundUser == null) {
+            throw new RecordNotFoundException(id.toString());
+        }
+        return foundUser;
     }
 
     @PostMapping(path = "/users")
-    public void save(@RequestBody UserBean user) {
-        userService.create(user);
+    public ResponseEntity<Object> save(@RequestBody UserBean user) {
+        UserBean savedUser = userService.create(user);
+
+        URI location = ServletUriComponentsBuilder
+                .fromCurrentRequest()
+                .path("/{id}")
+                .buildAndExpand(savedUser.getId().toString())
+                .toUri();
+
+        return ResponseEntity.created(location).build();
     }
 
     @DeleteMapping(path = "/users/{id}")
-    public UserBean deleteBy(@PathVariable UUID id) {
+    public void deleteBy(@PathVariable UUID id) {
         userService.delete(id);
-        return null;
     }
 }

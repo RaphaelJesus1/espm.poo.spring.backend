@@ -30,7 +30,7 @@ public class ProductResource {
         productService.create(product);
     }
 
-    @PatchMapping(path = "/products/newprice/{id}/{price}")
+    @PatchMapping(path = "/products/{id}/{price}")
     public ProductBean update(@PathVariable UUID id, @PathVariable double price) {
         return productService.updatePrice(id, price);
     }

@@ -1,50 +1,41 @@
 package br.espm.poo.backend.service;
 
 import br.espm.poo.backend.datatype.UserBean;
-import org.apache.catalina.User;
+import br.espm.poo.backend.model.UserModel;
+import br.espm.poo.backend.repository.UserRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 @Component
 public class UserService {
 
-    private static Map<UUID, UserBean> users = new HashMap<>();
+    @Autowired
+    private UserRepository userRepository;
 
-    static {
-        UserBean u1 = new UserBean(UUID.randomUUID(), "raphael");
-        UserBean u2 = new UserBean(UUID.randomUUID(), "humberto");
-        UserBean u3 = new UserBean(UUID.randomUUID(), "julia");
-        UserBean u4 = new UserBean(UUID.randomUUID(), "pedro");
-
-        users.put(u1.getId(), u1);
-        users.put(u2.getId(), u2);
-        users.put(u3.getId(), u3);
-        users.put(u4.getId(), u4);
-    }
-
-    public Map<UUID, UserBean> listAll() {
-        return users;
+    public List<UserBean> listAll() {
+        return StreamSupport
+                .stream(userRepository.findAll().spliterator(), false)
+                .collect(Collectors.toList())
+                .stream().map(UserModel::to)
+                .collect(Collectors.toList());
     }
 
     public UserBean findBy(UUID id) {
-        for(Map.Entry<UUID, UserBean> key : users.entrySet()){
-            if(id.equals(key.getValue().getId())){
-                return key.getValue();
-            }
-        }
-        return null;
+        return userRepository.findById(id.toString()).map(userModel -> userModel.to()).orElse(null);
     }
 
     public UserBean create(UserBean user) {
-        if(user.getId() == null) {
-            user.setId(UUID.randomUUID());
-        }
-        users.put(user.getId(), user);
-        return user;
+        user.setId(UUID.randomUUID());
+        return userRepository.save(new UserModel(user)).to();
     }
 
     public void delete(UUID id) {
-        users.remove(id);
+        userRepository.deleteById(id.toString());
     }
+
+
 }
